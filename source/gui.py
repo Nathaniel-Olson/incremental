@@ -1,99 +1,153 @@
 import pygame
+import constants
+import sys
 
-class Button:
-	def __init__(self, width: int, height: int, location: tuple[int], color: tuple[int]) -> None:
-		self.rect = pygame.Rect(location, (width, height))
-		self.shown = False
+class Group:
+	def __init__(self, location, size, color) -> None:
+		self.rect = pygame.Rect(location, size)
 		self.color = color
-		self.text1 = None
-		self.text2 = None
-
-		self.text1_coordinate = None
-		self.text2_coordinate = None
-
-	def check_point_intersect(self, click_coordinate: tuple[int]) -> bool:
-		if self.shown:
-			return self.rect.collidepoint(click_coordinate)
-
-		else:
-			return False
-
-	def show(self) -> None:
 		self.shown = True
-		return None
+		self.children = list()
 
-	def hide(self) -> None:
-		self.shown = False
-		return None
+	def move_to(self, location) -> None:
+		self.rect.left = location[0]
+		self.rect.top = location[1]
 
-	def write(self, string: str, font: pygame.Font, color: tuple[int]) -> None:
-		self.text_surface = font.render(string, False, color)
+	def render(self, surface) -> None:
+		if not self.shown:
+			return
 
-	def text(self, text: str,
-				   font: pygame.Font,
-				   color: tuple[int],
-				   text2: str | None = None,
-				   font2: pygame.Font | None = None,
-				   x_alignment: str = "left",
-				   x_alignment_spacing: int = 8) -> None:
+		pygame.draw.rect(surface, self.color, self.rect, border_radius = 15)
+		for child in self.children:
+			child.render(surface)
 
-		text_size = font.size(text)
-		text_width, text_height = text_size[0], text_size[1]
+	def add_child(self, child) -> None:
+		self.children.append(child)
 
-		if self.rect.height < text_height:
-			raise ValueError(f"Text too tall for button, {text_height=}, {self.rect.height=}, {self}")
+class TextBox:
+	def __init__(self, group, location, size, color) -> None:
+		self.group = group
+		self.color = color
+		self.relative_location = location
+		self.absolute_location = (self.group.rect.left + location[0],
+								  self.group.rect.top + location[1])
 
-		if self.rect.width < text_width:
-			raise ValueError(f"Text too wide for button, {text_width=}, {self.rect.width=}, {self}")
+		self.rect = pygame.Rect(self.absolute_location, size)
+		self.group.add_child(self)
 
-		y_text_spacing = (text_height - self.rect.height) / 2
+		self.children = list()
 
-		y_coordinate = int(self.rect.top - y_text_spacing)
+	def realign(self) -> None:
+		self.absolute_location = (self.group.rect.left + self.relative_location[0],
+								  self.group.rect.top + self.relative_location[1])
 
-		if x_alignment == "left":
-			if text2 != None:
-				raise ValueError(f"only 1 text can be passed in to use the 'left' keyword. {self}")
-			x_coordinate = int(self.rect.left + x_alignment_spacing)
+		self.rect.topleft = self.absolute_location
 
-		elif x_alignment == "right":
-			if text2 != None:
-				raise ValueError(f"only 1 text can be passed in to use the 'right' keyword. {self}")
-			x_coordinate = int(self.rect.right - (x_alignment_spacing + text_width))
+	def render(self, surface) -> None:
+		self.realign()
+		pygame.draw.rect(surface, self.color, self.rect, border_radius = 5)
+		for child in self.children:
+			child.render(surface)
 
-		elif x_alignment == "split":
+	def add_child(self, child) -> None:
+		self.children.append(child)
 
-			if text2 == None:
-				raise ValueError(f"2 texts must be passed in to use the 'split' keyword. {self}")
+class Text:
+	def __init__(self, textbox, location, string, font, color) -> None:
+		self.textbox = textbox
+		self.string = string
+		self.font = font
+		self.color = color
 
-			text2_size = font2.size(text2)
-			text2_width, text2_height = text2_size[0], text2_size[1]
+		self.rendered_text = self.font.render(self.string, True, self.color)
 
-			if self.rect.width < text_width + text2_width:
-				raise ValueError(f"the width of these two texts is too large. sorry dawg. {self}")
-
-			x_coordinate = int(self.rect.left + x_alignment_spacing)
-			x2_coordinate = int(self.rect.right - (x_alignment_spacing + text2_width))
-
-			self.text2 = font2.render(text2, True, color)
-			self.text2_coordinate = (x2_coordinate, y_coordinate)
-
-		else:
-			raise ValueError(f"invalid identifier. must be one of left, right, split. chosen: {x_alignment}")
-
-		self.text1 = font.render(text, True, color)
-		self.text1_coordinate = (x_coordinate, y_coordinate)
-		return None
-
-	def render(self, surface: pygame.Surface) -> None:
-		if self.shown:
-			pygame.draw.rect(surface, self.color, self.rect)
-			if self.text1 != None:
-				surface.blit(self.text1, self.text1_coordinate)
-			if self.text2 != None:
-				surface.blit(self.text2, self.text2_coordinate)
-			return None
-		else:
-			return None
+		self.relative_location = location
+		self.absolute_location = (self.textbox.absolute_location[0] + location[0],
+								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.rendered_text.get_height()) / 2)
+		self.textbox.add_child(self)
 
 
+	def realign(self) -> None:
+		self.absolute_location = (self.textbox.absolute_location[0] + self.relative_location[0],
+								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.rendered_text.get_height()) / 2)
 
+	def render(self, surface) -> None:
+		self.realign()
+		surface.blit(self.rendered_text, self.absolute_location)
+
+	def set_string(self, string) -> None:
+		if string != self.string:
+			self.string = string
+			self.rendered_text = self.font.render(self.string, True, self.color)
+
+	def set_color(self, color) -> None:
+		if color != self.color:
+			self.color = color
+			self.rendered_text = self.font.render(self.string, True, self.color)
+
+class Button(TextBox):s
+	def check_point_intersect(self, point) -> bool:
+		if not self.group.shown:
+			return False
+		return self.rect.collidepoint(point)
+
+class Slider(TextBox):
+	...
+
+
+def main():
+	pygame.init()
+
+	screen = pygame.display.set_mode((640, 480))
+
+	clock = pygame.time.Clock()
+
+	SEGOEUI_40 = pygame.font.SysFont("segoeuisemibold", 40)
+
+	iterator = 1
+
+	group1 = Group((10, 10), (620, 460), constants.PRUSSIAN_BLUE)
+	textbox1a = TextBox(group1, (10, 10), (295, 60), constants.DUSK_BLUE)
+	textbox1b = TextBox(group1, (315, 10), (295, 60), constants.DUSK_BLUE)
+	text1a = Text(textbox1a, (10, 0), "I am text1a", SEGOEUI_40, constants.ALABASTER_GREY)
+	text1b = Text(textbox1b, (10, 0), "I am text1b", SEGOEUI_40, constants.ALABASTER_GREY)
+
+	button1a = Button(group1, (10, 80), (295, 60), constants.DUSK_BLUE)
+
+	while True:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_a:
+					text1a.set_string("I am evil text1a")
+				if event.key == pygame.K_w:
+					pass
+				if event.key == pygame.K_d:
+					pass
+				if event.key == pygame.K_s:
+					pass
+				if event.key == pygame.K_SPACE:
+					pass
+
+			if event.type == pygame.KEYUP:
+				if event.key == pygame.K_a:
+					text1a.set_string("I am text1a")
+
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if button1a.check_point_intersect(pygame.mouse.get_pos()):
+					button1a.color = constants.DUSTY_DENIM
+
+			if event.type == pygame.MOUSEBUTTONUP:
+				button1a.color = (constants.DUSK_BLUE)
+
+		screen.fill(constants.INK_BLACK)
+
+		group1.render(screen)
+
+		pygame.display.update()
+
+if __name__ == "__main__":
+	main()
