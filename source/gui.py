@@ -85,7 +85,7 @@ class Text:
 			self.color = color
 			self.rendered_text = self.font.render(self.string, True, self.color)
 
-class Button(TextBox):s
+class Button(TextBox):
 	def check_point_intersect(self, point) -> bool:
 		if not self.group.shown:
 			return False
@@ -102,17 +102,17 @@ def main():
 
 	clock = pygame.time.Clock()
 
-	SEGOEUI_40 = pygame.font.SysFont("segoeuisemibold", 40)
+	color = constants.Color()
+	font = constants.Font()
+	font.initialize_all()
 
-	iterator = 1
+	group1 = Group((10, 10), (620, 460), color.PRUSSIAN_BLUE)
+	textbox1a = TextBox(group1, (10, 10), (295, 60), color.DUSK_BLUE)
+	textbox1b = TextBox(group1, (315, 10), (295, 60), color.DUSK_BLUE)
+	text1a = Text(textbox1a, (10, 0), "I am text1a", font.CENTURY40, color.ALABASTER_GREY)
+	text1b = Text(textbox1b, (10, 0), "I am text1b", font.CENTURY40, color.ALABASTER_GREY)
 
-	group1 = Group((10, 10), (620, 460), constants.PRUSSIAN_BLUE)
-	textbox1a = TextBox(group1, (10, 10), (295, 60), constants.DUSK_BLUE)
-	textbox1b = TextBox(group1, (315, 10), (295, 60), constants.DUSK_BLUE)
-	text1a = Text(textbox1a, (10, 0), "I am text1a", SEGOEUI_40, constants.ALABASTER_GREY)
-	text1b = Text(textbox1b, (10, 0), "I am text1b", SEGOEUI_40, constants.ALABASTER_GREY)
-
-	button1a = Button(group1, (10, 80), (295, 60), constants.DUSK_BLUE)
+	button1a = Button(group1, (10, 80), (295, 60), color.DUSK_BLUE)
 
 	while True:
 		for event in pygame.event.get():
@@ -138,12 +138,12 @@ def main():
 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if button1a.check_point_intersect(pygame.mouse.get_pos()):
-					button1a.color = constants.DUSTY_DENIM
+					button1a.color = color.DUSTY_DENIM
 
 			if event.type == pygame.MOUSEBUTTONUP:
-				button1a.color = (constants.DUSK_BLUE)
+				button1a.color = color.DUSK_BLUE
 
-		screen.fill(constants.INK_BLACK)
+		screen.fill(color.INK_BLACK)
 
 		group1.render(screen)
 
