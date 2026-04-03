@@ -2,87 +2,9 @@ import pygame
 import sys
 import math
 import gui
-from constants import *
+from constants import Color, Font
 from calc import LongInt
-
-class Game:
-	def __init__(self, 
-				 screen_size: tuple[int] = (640, 480),
-				 display_size: tuple[int] = (640, 480)):
-
-		pygame.init()
-
-		self.screen = pygame.display.set_mode(screen_size)
-		self.display = pygame.Surface(display_size)
-		self.clock = pygame.time.Clock()
-
-		self.key = {"1":False,"2":False,"3":False,"4":False,"5":False,
-					"6":False,"7":False,"8":False,"9":False,"space":False}
-
-		self.left_click = False
-		self.left_click_cooldown = False
-
-		self.right_click = False
-		self.mouse_pos = (0, 0)
-
-	def handle_io(self):
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				sys.exit()
-
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_1:
-					self.key["1"] = True
-				if event.key == pygame.K_2:
-					self.key["2"] = True
-				if event.key == pygame.K_3:
-					self.key["3"] = True
-				if event.key == pygame.K_4:
-					self.key["4"] = True
-				if event.key == pygame.K_5:
-					self.key["5"] = True
-				if event.key == pygame.K_6:
-					self.key["6"] = True
-				if event.key == pygame.K_7:
-					self.key["7"] = True
-				if event.key == pygame.K_8:
-					self.key["8"] = True
-				if event.key == pygame.K_9:
-					self.key["9"] = True
-				if event.key == pygame.K_SPACE:
-					self.key["space"] = True
-
-			if event.type == pygame.KEYUP:
-				if event.key == pygame.K_1:
-					self.key["1"] = False
-				if event.key == pygame.K_2:
-					self.key["2"] = False
-				if event.key == pygame.K_3:
-					self.key["3"] = False
-				if event.key == pygame.K_4:
-					self.key["4"] = False
-				if event.key == pygame.K_5:
-					self.key["5"] = False
-				if event.key == pygame.K_6:
-					self.key["6"] = False
-				if event.key == pygame.K_7:
-					self.key["7"] = False
-				if event.key == pygame.K_8:
-					self.key["8"] = False
-				if event.key == pygame.K_9:
-					self.key["9"] = False
-				if event.key == pygame.K_SPACE:
-					self.key["space"] = False
-
-			if event.type == pygame.MOUSEBUTTONDOWN:
-				self.left_click = True
-
-			if event.type == pygame.MOUSEBUTTONUP:
-				self.left_click = False
-
-			if event.type == pygame.MOUSEMOTION:
-				self.mouse_pos = pygame.mouse.get_pos()
+from game import Game
 
 def logistic_function(q,q1,q2,c1,c2,c3,dt) -> LongInt:
 	dq = (c1 / c2) * q * (c3 - (q / c2)) * dt
@@ -91,17 +13,9 @@ def logistic_function(q,q1,q2,c1,c2,c3,dt) -> LongInt:
 	return dx
 
 game = Game()
-c2_upgrade_button = gui.Button(width = 200, height = 40, location = (40, 250), color = DUSK_BLUE)
-c1_upgrade_button = gui.Button(width = 200, height = 40, location = (40, 200), color = DUSK_BLUE)
-c3_upgrade_button = gui.Button(width = 200, height = 40, location = (40, 300), color = DUSK_BLUE)
-q1_upgrade_button = gui.Button(width = 200, height = 40, location = (40, 350), color = DUSK_BLUE)
-q2_upgrade_button = gui.Button(width = 200, height = 40, location = (40, 400), color = DUSK_BLUE)
-
-c1_upgrade_button.show()
-c2_upgrade_button.show()
-c3_upgrade_button.show()
-q1_upgrade_button.show()
-q2_upgrade_button.show()
+color = Color()
+font = Font()
+font.initialize_all()
 
 VIRTUAL_TICK_RATE = 30
 TICK_RATE = 30
@@ -124,97 +38,62 @@ q2_cost = LongInt(1, 0)
 
 x = LongInt(0, 0)
 
+group_a = gui.Group((10, 10), (620, 225), color.GROUP)
+
+textbox_a_locations = group_a.subdivide((2, 3), 10)
+
+textbox_a1 = gui.TextBox(group_a, textbox_a_locations[0][0], (295, 60), color.TEXTBOX)
+textbox_a2 = gui.TextBox(group_a, textbox_a_locations[0][1], (295, 60), color.TEXTBOX)
+
+text_a11 = gui.Text(textbox_a1, "left", "X =", font.CENTURY40, color.TEXT)
+text_a21 = gui.Text(textbox_a2, "left", "Q =", font.CENTURY40, color.TEXT)
+text_a12 = gui.Text(textbox_a1, "right", str(x), font.CENTURY40, color.TEXT)
+text_a22 = gui.Text(textbox_a2, "right", str(q), font.CENTURY40, color.TEXT)
+
+
+group_b = gui.Group((10, 245), (620, 225), color.GROUP)
+
+textbox_b_locations = group_b.subdivide((2,3), 10)
+
+textbox_b1 = gui.Button(group_b, textbox_b_locations[0][0], (295, 60), color.TEXTBOX)
+textbox_b2 = gui.Button(group_b, textbox_b_locations[1][0], (295, 60), color.TEXTBOX)
+textbox_b3 = gui.Button(group_b, textbox_b_locations[2][0], (295, 60), color.TEXTBOX)
+textbox_b4 = gui.Button(group_b, textbox_b_locations[0][1], (295, 60), color.TEXTBOX)
+textbox_b5 = gui.Button(group_b, textbox_b_locations[1][1], (295, 60), color.TEXTBOX)
+
+text_b11 = gui.Text(textbox_b1, "left", "C1", font.CENTURY40, color.TEXT)
+text_b21 = gui.Text(textbox_b2, "left", "C2", font.CENTURY40, color.TEXT)
+text_b31 = gui.Text(textbox_b3, "left", "C3", font.CENTURY40, color.TEXT)
+text_b41 = gui.Text(textbox_b4, "left", "Q1", font.CENTURY40, color.TEXT)
+text_b51 = gui.Text(textbox_b5, "left", "Q2", font.CENTURY40, color.TEXT)
+
+text_b12 = gui.Text(textbox_b1, "right", str(c1_cost), font.CENTURY40, color.TEXT)
+text_b22 = gui.Text(textbox_b2, "right", str(c2_cost), font.CENTURY40, color.TEXT)
+text_b32 = gui.Text(textbox_b3, "right", str(c3_cost), font.CENTURY40, color.TEXT)
+text_b42 = gui.Text(textbox_b4, "right", str(q1_cost), font.CENTURY40, color.TEXT)
+text_b52 = gui.Text(textbox_b5, "right", str(q2_cost), font.CENTURY40, color.TEXT)
+
 # GAME LOOP
 while True:
-	game.handle_io()
+	game.read_events()
 
 	for _ in range(TICK_RATE_FACTOR):
 		dx = logistic_function(q, q1, q2, c1, c2, c3, dt)
 		x += dx
 
-	if x >= c1_cost:
-		c1_upgrade_button.color = DUSTY_DENIM
-	else:
-		c1_upgrade_button.color = DUSK_BLUE
+	for child in group_b.children:
+		if not isinstance(child, gui.Button):
+			continue
 
-	if x >= c2_cost:
-		c2_upgrade_button.color = DUSTY_DENIM
-	else:
-		c2_upgrade_button.color = DUSK_BLUE
+		if child.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]:
+			child.color = color.TEXTBOX_LIGHT
+		else:
+			child.color = color.TEXTBOX
 
-	if x >= c3_cost:
-		c3_upgrade_button.color = DUSTY_DENIM
-	else:
-		c3_upgrade_button.color = DUSK_BLUE
+	game.display.fill(color.BACKGROUND)
 
-	if x >= q1_cost:
-		q1_upgrade_button.color = DUSTY_DENIM
-	else:
-		q1_upgrade_button.color = DUSK_BLUE
-
-	if x >= q2_cost:
-		q2_upgrade_button.color = DUSTY_DENIM
-	else:
-		q2_upgrade_button.color = DUSK_BLUE
-
-	if game.left_click and not game.left_click_cooldown:
-		if c1_upgrade_button.check_point_intersect(game.mouse_pos) and x >= c1_cost:
-			x -= c1_cost
-			c1 *= 1.07
-			c1_cost *= 1.25
-
-		if c2_upgrade_button.check_point_intersect(game.mouse_pos) and x >= c2_cost:
-			x -= c2_cost
-			c2 *= 2
-			c2_cost *= 4
-
-		if c3_upgrade_button.check_point_intersect(game.mouse_pos) and x >= c3_cost:
-			x -= c3_cost
-			c3 *= 2
-			c3_cost *= 500
-
-		if q1_upgrade_button.check_point_intersect(game.mouse_pos) and x >= q1_cost:
-			x -= q1_cost
-			q1 *= 1.07
-			q1_cost *= 1.25
-
-		if q2_upgrade_button.check_point_intersect(game.mouse_pos) and x >= q2_cost:
-			x -= q2_cost
-			q2 *= 2
-			q2_cost *= 50
-
-		game.left_click_cooldown = True
-
-
-	if game.left_click_cooldown and not game.left_click:
-
-		game.left_click_cooldown = False
-
-	q_surface = CENTURY_40.render(f"= {q}", True, ALABASTER_GREY)
-	x_surface = CENTURY_40.render(f"= {x}", True, ALABASTER_GREY)
-
-	q2_surface = CENTURY_40.render("Q", True, ALABASTER_GREY)
-	x2_surface = SYMBOL_40.render("r", True, ALABASTER_GREY)
-	
-	game.display.fill(INK_BLACK)
-
-	game.display.blit(x_surface, (90, 100))
-	game.display.blit(q_surface, (90, 40))
-
-	game.display.blit(x2_surface, (50, 100))
-	game.display.blit(q2_surface, (40, 40))
-
-	c1_upgrade_button.text(f"C1", CENTURY_20, ALABASTER_GREY, f"${c1_cost}", CENTURY_20, "split")
-	c2_upgrade_button.text(f"C2", CENTURY_20, ALABASTER_GREY, f"${c2_cost}", CENTURY_20, "split")
-	c3_upgrade_button.text(f"C3", CENTURY_20, ALABASTER_GREY, f"${c3_cost}", CENTURY_20, "split")
-	q1_upgrade_button.text(f"Q1", CENTURY_20, ALABASTER_GREY, f"${q1_cost}", CENTURY_20, "split")
-	q2_upgrade_button.text(f"Q2", CENTURY_20, ALABASTER_GREY, f"${q2_cost}", CENTURY_20, "split")
-
-	c1_upgrade_button.render(surface = game.display)
-	c2_upgrade_button.render(surface = game.display)
-	c3_upgrade_button.render(surface = game.display)
-	q1_upgrade_button.render(surface = game.display)
-	q2_upgrade_button.render(surface = game.display)
+	group_a.render(game.display)
+	group_b.render(game.display)
 
 	# SCALING AND GAME SPEED
 	game.screen.blit(pygame.transform.scale(game.display, game.screen.get_size()), (0, 0))

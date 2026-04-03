@@ -52,11 +52,11 @@ class Game:
 				sys.exit()
 
 			if event.type == pygame.KEYDOWN:
-				if event.key == in self.key_map:
+				if event.key in self.key_map:
 					self.key[self.key_map[event.key]] = 1
 
 			if event.type == pygame.KEYUP:
-				if event.key == in self.key_map:
+				if event.key in self.key_map:
 					self.key[self.key_map[event.key]] = 1
 
 			if event.type == pygame.MOUSEBUTTONDOWN:

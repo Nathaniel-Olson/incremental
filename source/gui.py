@@ -24,10 +24,24 @@ class Group:
 	def add_child(self, child) -> None:
 		self.children.append(child)
 
+	def subdivide(self, divisions, padding) -> list:
+		total_x_padding = padding * (divisions[0] + 1)
+		textbox_x_size = (self.rect.width - total_x_padding) / divisions[0]
+
+		total_y_padding = padding * (divisions[1] + 1)
+		textbox_y_size = (self.rect.height - total_y_padding) / divisions[1]
+
+		locations = [[(int(padding * (j + 1) + textbox_x_size * j), int(padding * (i + 1) + textbox_y_size * i)) for j in range(divisions[0])] for i in range(divisions[1])]
+
+		print(locations)
+		return locations
+
+
 class TextBox:
-	def __init__(self, group, location, size, color) -> None:
+	def __init__(self, group, location, size, color, padding = 10) -> None:
 		self.group = group
 		self.color = color
+		self.padding = padding
 		self.relative_location = location
 		self.absolute_location = (self.group.rect.left + location[0],
 								  self.group.rect.top + location[1])
@@ -59,17 +73,22 @@ class Text:
 		self.font = font
 		self.color = color
 
+		self.size = self.font.size(self.string)
 		self.rendered_text = self.font.render(self.string, True, self.color)
 
-		self.relative_location = location
-		self.absolute_location = (self.textbox.absolute_location[0] + location[0],
-								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.rendered_text.get_height()) / 2)
+		if location == "left":
+			self.relative_location = (self.textbox.padding, 0)
+		elif location == "right":
+			self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
+		else:
+			self.relative_location = location
+
 		self.textbox.add_child(self)
 
 
 	def realign(self) -> None:
 		self.absolute_location = (self.textbox.absolute_location[0] + self.relative_location[0],
-								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.rendered_text.get_height()) / 2)
+								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.size[1]) / 2)
 
 	def render(self, surface) -> None:
 		self.realign()
@@ -78,11 +97,13 @@ class Text:
 	def set_string(self, string) -> None:
 		if string != self.string:
 			self.string = string
+			self.size = self.font.size(self.string)
 			self.rendered_text = self.font.render(self.string, True, self.color)
 
 	def set_color(self, color) -> None:
 		if color != self.color:
 			self.color = color
+			self.size = self.font.size(self.string)
 			self.rendered_text = self.font.render(self.string, True, self.color)
 
 class Button(TextBox):
