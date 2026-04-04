@@ -33,7 +33,6 @@ class Group:
 
 		locations = [[(int(padding * (j + 1) + textbox_x_size * j), int(padding * (i + 1) + textbox_y_size * i)) for j in range(divisions[0])] for i in range(divisions[1])]
 
-		print(locations)
 		return locations
 
 
@@ -80,6 +79,8 @@ class Text:
 			self.relative_location = (self.textbox.padding, 0)
 		elif location == "right":
 			self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
+		elif location == "center":
+			self.relative_location = ((self.textbox.rect.width - self.size[0] - self.textbox.padding)/2, 0)
 		else:
 			self.relative_location = location
 

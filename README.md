@@ -2,8 +2,11 @@
 
 This project is simply messing around with incremental games, and a light exploration into creating gui elements from scratch.
 
+# files
+
 ### calc.py
 stores the 'LongInt' class, necessary for working with enormous numbers
+(sorry in advance, its a bit of a long and ugly file)
 
 ### constants.py
 self-explanatory. RBG color codes, fonts, etc.
