@@ -34,6 +34,9 @@ class LongInt:
 	# ==================================
 
 	def __add__(self, _other) -> "LongInt":
+		if isinstance(_other, int | float):
+			_other = LongInt(_other, 0)
+
 		if isinstance(_other, LongInt):
 			other = _other._copy()
 
@@ -307,11 +310,38 @@ class LongInt:
 
 		return self.__lt__(other)
 
+class UpgradeableParameter:
+	def __init__(self, initial_value, value_function,
+					   initial_cost, cost_function,
+					   initial_multiplier, multiplier_function) -> None:
+		self.value = initial_value
+		self.cost = initial_cost
+		self.multiplier = initial_multiplier
+		self.value_function = value_function
+		self.cost_function = cost_function
+		self.multiplier_function = multiplier_function
+
+
+	def purchase(self, currency) -> None:
+		self.value = self.value_function(self.value)
+		self.cost = self.cost_function(self.cost)
+		self.multiplier = self.multiplier_function(self.multiplier)
+
 def main():
 	long_1 = LongInt(5.5, 300)
 	long_2 = LongInt(3.3, 678)
 	long_3 = LongInt(200, 3)
 	long_4 = LongInt(1230, 58987)
+	i = LongInt(0, 0)
+	c = LongInt(5, 0)
+	m = LongInt(1, 0)
+	var = UpgradeableParameter(i, lambda i: i + 1, c, lambda i: i * 2, m, lambda i: i)
+
+	x = LongInt(5, 0)
+	print(var.value, var.cost, var.multiplier)
+	if x >= var.cost:
+		var.purchase(x)
+		print(var.value, var.cost, var.multiplier)
 
 
 	print(long_1 + long_2 + long_3 + long_4)

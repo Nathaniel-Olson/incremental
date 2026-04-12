@@ -71,18 +71,19 @@ class Text:
 		self.string = string
 		self.font = font
 		self.color = color
+		self.location = location
 
 		self.size = self.font.size(self.string)
 		self.rendered_text = self.font.render(self.string, True, self.color)
 
-		if location == "left":
+		if self.location == "left":
 			self.relative_location = (self.textbox.padding, 0)
-		elif location == "right":
+		elif self.location == "right":
 			self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
-		elif location == "center":
+		elif self.location == "center":
 			self.relative_location = ((self.textbox.rect.width - self.size[0] - self.textbox.padding)/2, 0)
 		else:
-			self.relative_location = location
+			self.relative_location = self.location
 
 		self.textbox.add_child(self)
 
@@ -97,9 +98,21 @@ class Text:
 
 	def set_string(self, string) -> None:
 		if string != self.string:
+			self.relative_location = self.location
 			self.string = string
 			self.size = self.font.size(self.string)
+
 			self.rendered_text = self.font.render(self.string, True, self.color)
+			if self.location == "left":
+				self.relative_location = (self.textbox.padding, 0)
+			elif self.location == "right":
+				self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
+			elif self.location == "center":
+				self.relative_location = ((self.textbox.rect.width - self.size[0] - self.textbox.padding)/2, 0)
+			else:
+				self.relative_location = self.location
+
+
 
 	def set_color(self, color) -> None:
 		if color != self.color:
@@ -112,6 +125,9 @@ class Button(TextBox):
 		if not self.group.shown:
 			return False
 		return self.rect.collidepoint(point)
+
+	def add_upgradeable_dependant(self, upgradeable_parameter) -> None:
+		self.upgradeable_parameter = upgradeable_parameter
 
 class Slider(TextBox):
 	...
