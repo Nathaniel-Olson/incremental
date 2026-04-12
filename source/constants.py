@@ -10,26 +10,34 @@ class Color:
 		self.BLUE = (0, 0, 255, 0)
 		self.GREY = (127, 127, 127, 0)
 
-		### BLUE COLORWAVE
-		# self.BACKGROUND = (13, 27, 42, 0)
-		# self.GROUP = (27, 38, 59, 0)
-		# self.TEXTBOX = (65, 90, 119, 0)
-		# self.TEXTBOX_LIGHT = (119, 141, 169, 0)
-		# self.TEXT = (224, 225, 221, 0)
+		self.BACKGROUND = (0, 0, 0, 0)
+		self.GROUP = (0, 0, 0, 0)
+		self.TEXTBOX = (0, 0, 0, 0)
+		self.TEXTBOX_LIGHT = (0, 0, 0, 0)
+		self.TEXT = (0, 0, 0, 0)
 
-		### PURPLE COLORWAVE
-		# self.BACKGROUND = (47, 24, 75, 0)
-		# self.GROUP = (83, 43, 136, 0)
-		# self.TEXTBOX = (155, 114, 207, 0)
-		# self.TEXTBOX_LIGHT = (200, 177, 228, 0)
-		# self.TEXT = (244, 239, 250, 0)
 
-		### BLACK COLORWAVE
+	def set_black_colorwave(self):
 		self.BACKGROUND = (33, 37, 41, 0)
 		self.GROUP = (52, 58, 64, 0)
 		self.TEXTBOX = (73, 80, 87, 0)
 		self.TEXTBOX_LIGHT = (108, 117, 125, 0)
 		self.TEXT = (222, 226, 230, 0)
+
+	def set_purple_colorwave(self):
+		self.BACKGROUND = (47, 24, 75, 0)
+		self.GROUP = (83, 43, 136, 0)
+		self.TEXTBOX = (155, 114, 207, 0)
+		self.TEXTBOX_LIGHT = (200, 177, 228, 0)
+		self.TEXT = (244, 239, 250, 0)
+
+	def set_blue_colorwave(self):
+		self.BACKGROUND = (13, 27, 42, 0)
+		self.GROUP = (27, 38, 59, 0)
+		self.TEXTBOX = (65, 90, 119, 0)
+		self.TEXTBOX_LIGHT = (119, 141, 169, 0)
+		self.TEXT = (224, 225, 221, 0)
+
 
 # FONTS
 class Font:

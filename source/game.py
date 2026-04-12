@@ -57,7 +57,7 @@ class Game:
 
 			if event.type == pygame.KEYUP:
 				if event.key in self.key_map:
-					self.key[self.key_map[event.key]] = 1
+					self.key[self.key_map[event.key]] = 0
 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if event.button in self.mouse_map:

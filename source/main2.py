@@ -7,7 +7,10 @@ from calc import LongInt, UpgradeableParameter
 from game import Game
 
 game = Game()
+
 color = constants.Color()
+color.set_black_colorwave()
+
 font = constants.Font()
 font.initialize_all()
 
@@ -75,13 +78,6 @@ upgrades_textbox_6 = gui.Button(upgrades_group, upgrades_textbox_locations[7][0]
 upgrades_textbox_7 = gui.Button(upgrades_group, upgrades_textbox_locations[8][0], (600, 26), color.TEXTBOX)
 upgrades_textbox_8 = gui.Button(upgrades_group, upgrades_textbox_locations[9][0], (600, 26), color.TEXTBOX)
 
-upgrades_textbox_3.add_upgradeable_dependant(velocity)
-upgrades_textbox_4.add_upgradeable_dependant(acceleration)
-upgrades_textbox_5.add_upgradeable_dependant(jerk)
-upgrades_textbox_6.add_upgradeable_dependant(snap)
-upgrades_textbox_7.add_upgradeable_dependant(crackle)
-upgrades_textbox_8.add_upgradeable_dependant(pop)
-
 text_upgrades11 = gui.Text(upgrades_textbox_1, "center", f"${x}", font.CENTURY40, color.TEXT)
 
 text_upgrades21 = gui.Text(upgrades_textbox_2, "left", f"Type",         font.CENTURY20, color.TEXT)
@@ -108,6 +104,13 @@ text_upgrades63 = gui.Text(upgrades_textbox_6, "right", f"{snap.cost}",         
 text_upgrades73 = gui.Text(upgrades_textbox_7, "right", f"{crackle.cost}",       font.CENTURY20, color.TEXT)
 text_upgrades83 = gui.Text(upgrades_textbox_8, "right", f"{pop.cost}",           font.CENTURY20, color.TEXT)
 
+param_button_pairs = [(velocity, upgrades_textbox_3),
+					  (acceleration, upgrades_textbox_4),
+					  (jerk, upgrades_textbox_5),
+					  (snap, upgrades_textbox_6),
+					  (crackle, upgrades_textbox_7),
+					  (pop, upgrades_textbox_8)]
+
 ### GAME LOOP
 while True:
 	game.read_events()
@@ -126,12 +129,19 @@ while True:
 
 		if child.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]:
 			child.color = color.TEXTBOX_LIGHT
-			if x >= child.upgradeable_parameter.cost:
-				x -= child.upgradeable_parameter.cost
-				child.upgradeable_parameter.purchase(x)
 
 		else:
 			child.color = color.TEXTBOX
+
+	for index, pair in enumerate(param_button_pairs):
+		param, button = pair
+		if (button.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]) or game.key[str(index+1)]:
+			button.color = color.TEXTBOX_LIGHT
+			if x >= param.cost:
+				x -= param.cost
+				param.purchase()
+		else:
+			button.color = color.TEXTBOX
 
 	text_upgrades11.set_string(f"${x}")
 	

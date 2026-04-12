@@ -322,7 +322,7 @@ class UpgradeableParameter:
 		self.multiplier_function = multiplier_function
 
 
-	def purchase(self, currency) -> None:
+	def purchase(self) -> None:
 		self.value = self.value_function(self.value)
 		self.cost = self.cost_function(self.cost)
 		self.multiplier = self.multiplier_function(self.multiplier)
@@ -340,7 +340,7 @@ def main():
 	x = LongInt(5, 0)
 	print(var.value, var.cost, var.multiplier)
 	if x >= var.cost:
-		var.purchase(x)
+		var.purchase()
 		print(var.value, var.cost, var.multiplier)
 
 

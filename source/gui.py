@@ -126,9 +126,6 @@ class Button(TextBox):
 			return False
 		return self.rect.collidepoint(point)
 
-	def add_upgradeable_dependant(self, upgradeable_parameter) -> None:
-		self.upgradeable_parameter = upgradeable_parameter
-
 class Slider(TextBox):
 	...
 
