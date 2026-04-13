@@ -10,6 +10,7 @@ class Color:
 		self.BLUE = (0, 0, 255, 0)
 		self.GREY = (127, 127, 127, 0)
 
+		# default all black, requires initialization.
 		self.BACKGROUND = (0, 0, 0, 0)
 		self.GROUP = (0, 0, 0, 0)
 		self.TEXTBOX = (0, 0, 0, 0)
