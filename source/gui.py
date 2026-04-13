@@ -24,17 +24,6 @@ class Group:
 	def add_child(self, child) -> None:
 		self.children.append(child)
 
-	def subdivide(self, divisions, padding) -> list:
-		total_x_padding = padding * (divisions[0] + 1)
-		textbox_x_size = (self.rect.width - total_x_padding) / divisions[0]
-
-		total_y_padding = padding * (divisions[1] + 1)
-		textbox_y_size = (self.rect.height - total_y_padding) / divisions[1]
-
-		locations = [[(int(padding * (j + 1) + textbox_x_size * j), int(padding * (i + 1) + textbox_y_size * i)) for j in range(divisions[0])] for i in range(divisions[1])]
-
-		return locations
-
 
 class TextBox:
 	def __init__(self, group, location, size, color, padding = 10) -> None:
@@ -73,24 +62,27 @@ class Text:
 		self.color = color
 		self.location = location
 
-		self.size = self.font.size(self.string)
-		self.rendered_text = self.font.render(self.string, True, self.color)
-
-		if self.location == "left":
-			self.relative_location = (self.textbox.padding, 0)
-		elif self.location == "right":
-			self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
-		elif self.location == "center":
-			self.relative_location = ((self.textbox.rect.width - self.size[0] - self.textbox.padding)/2, 0)
-		else:
-			self.relative_location = self.location
+		self.update_alignment()
 
 		self.textbox.add_child(self)
 
+	def update_alignment(self):
+		self.size = self.font.size(self.string)
+		self.rendered_text = self.font.render(self.string, True, self.color)
+
+		match self.location:
+			case "left":
+				self.relative_location = (self.textbox.padding, (self.textbox.rect.height - self.size[1]) / 2)
+			case "right":
+				self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, (self.textbox.rect.height - self.size[1]) / 2)
+			case "center":
+				self.relative_location = ((self.textbox.rect.width - self.size[0])/2, (self.textbox.rect.height - self.size[1]) / 2)
+			case _:
+				self.relative_location = self.location
 
 	def realign(self) -> None:
 		self.absolute_location = (self.textbox.absolute_location[0] + self.relative_location[0],
-								  self.textbox.absolute_location[1] + (self.textbox.rect.height - self.size[1]) / 2)
+								  self.textbox.absolute_location[1] + self.relative_location[1])
 
 	def render(self, surface) -> None:
 		self.realign()
@@ -100,19 +92,8 @@ class Text:
 		if string != self.string:
 			self.relative_location = self.location
 			self.string = string
-			self.size = self.font.size(self.string)
 
-			self.rendered_text = self.font.render(self.string, True, self.color)
-			if self.location == "left":
-				self.relative_location = (self.textbox.padding, 0)
-			elif self.location == "right":
-				self.relative_location = (self.textbox.rect.width - self.size[0] - self.textbox.padding, 0)
-			elif self.location == "center":
-				self.relative_location = ((self.textbox.rect.width - self.size[0] - self.textbox.padding)/2, 0)
-			else:
-				self.relative_location = self.location
-
-
+			self.update_alignment()
 
 	def set_color(self, color) -> None:
 		if color != self.color:
@@ -129,6 +110,16 @@ class Button(TextBox):
 class Slider(TextBox):
 	...
 
+def subdivide_element(element, subdivisions: tuple[int], padding) -> list[tuple[int]]:
+	total_x_padding = padding * (subdivisions[0] + 1)
+	subdivision_x_size = (element.rect.width - total_x_padding) / subdivisions[0]
+
+	total_y_padding = padding * (subdivisions[1] + 1)
+	subdivision_y_size = (element.rect.height - total_y_padding) / subdivisions[1]
+
+	locations = [[(int(padding * (x + 1) + subdivision_x_size * x), int(padding * (y + 1) + subdivision_y_size * y)) for x in range(subdivisions[0])] for y in range(subdivisions[1])]	
+	subdivision_size = ((element.rect.width - total_x_padding) / subdivisions[0], (element.rect.height - total_y_padding) / subdivisions[1])
+	return locations, subdivision_size
 
 def main():
 	pygame.init()
