@@ -6,6 +6,7 @@ import constants
 from calc import LongInt, UpgradeableParameter
 from game import Game
 
+# initialize game, color and font modules.
 game = Game()
 
 color = constants.Color()
@@ -20,37 +21,36 @@ TICK_RATE_FACTOR = int(VIRTUAL_TICK_RATE / TICK_RATE)
 
 dt = 1 / VIRTUAL_TICK_RATE
 
+# create game variables
 x = LongInt(1, 0)
 
-v_i = LongInt(0, 0)
-a_i = LongInt(0, 0)
-j_i = LongInt(0, 0)
-s_i = LongInt(0, 0)
-c_i = LongInt(0, 0)
-p_i = LongInt(0, 0)
+v_i = LongInt(1, 0)
+a_i = LongInt(1, 0)
+j_i = LongInt(1, 0)
+s_i = LongInt(1, 0)
+c_i = LongInt(1, 0)
+p_i = LongInt(1, 0)
 
 v_c = LongInt(1, 0)
-a_c = LongInt(10, 0)
-j_c = LongInt(100, 0)
-s_c = LongInt(1000, 0)
-c_c = LongInt(10000, 0)
-p_c = LongInt(100000, 0)
+a_c = LongInt(5, 1)
+j_c = LongInt(1, 3)
+s_c = LongInt(5, 4)
+c_c = LongInt(1, 6)
+p_c = LongInt(5, 7)
 
-v_m = LongInt(1, 0)
-a_m = LongInt(1, 0)
-j_m = LongInt(1, 0)
-s_m = LongInt(1, 0)
-c_m = LongInt(1, 0)
-p_m = LongInt(1, 0)
+v_m = LongInt(0, 0)
+a_m = LongInt(0, 0)
+j_m = LongInt(0, 0)
+s_m = LongInt(0, 0)
+c_m = LongInt(0, 0)
+p_m = LongInt(0, 0)
 
-upgrade_factor = LongInt(1, 0)
-
-velocity     = UpgradeableParameter(v_i, lambda i: i + upgrade_factor, v_c, lambda i: i * 2, v_m, lambda i: i)
-acceleration = UpgradeableParameter(a_i, lambda i: i + upgrade_factor, a_c, lambda i: i * 2, a_m, lambda i: i)
-jerk         = UpgradeableParameter(j_i, lambda i: i + upgrade_factor, j_c, lambda i: i * 2, j_m, lambda i: i)
-snap         = UpgradeableParameter(s_i, lambda i: i + upgrade_factor, s_c, lambda i: i * 2, s_m, lambda i: i)
-crackle      = UpgradeableParameter(c_i, lambda i: i + upgrade_factor, c_c, lambda i: i * 2, c_m, lambda i: i)
-pop          = UpgradeableParameter(p_i, lambda i: i + upgrade_factor, p_c, lambda i: i * 2, p_m, lambda i: i)
+velocity     = UpgradeableParameter(v_i, lambda i: i, v_c, lambda i: i * 2, v_m, lambda i: i + LongInt(1, 0))
+acceleration = UpgradeableParameter(a_i, lambda i: i, a_c, lambda i: i * 2, a_m, lambda i: i + LongInt(1/2, 0))
+jerk         = UpgradeableParameter(j_i, lambda i: i, j_c, lambda i: i * 2, j_m, lambda i: i + LongInt(1/6, 0))
+snap         = UpgradeableParameter(s_i, lambda i: i, s_c, lambda i: i * 2, s_m, lambda i: i + LongInt(1/24, 0))
+crackle      = UpgradeableParameter(c_i, lambda i: i, c_c, lambda i: i * 2, c_m, lambda i: i + LongInt(1/120, 0))
+pop          = UpgradeableParameter(p_i, lambda i: i, p_c, lambda i: i * 2, p_m, lambda i: i + LongInt(1/720, 0))
 
 ### CREATING GROUPS, TEXTBOXES, AND TEXT
 header_group = gui.Group((10, 10), (620, 80), color.GROUP)
@@ -66,7 +66,6 @@ text_header21 = gui.Text(textbox_header2, "center", "Research", font.CENTURY40, 
 upgrades_group = gui.Group((10, 100), (620, 370), color.GROUP)
 
 upgrades_textbox_locations = upgrades_group.subdivide((1, 10), 10)
-print(upgrades_textbox_locations)
 
 upgrades_textbox_1 = gui.TextBox(upgrades_group, upgrades_textbox_locations[0][0], (600, 98), color.TEXTBOX)
 
@@ -116,42 +115,48 @@ while True:
 	game.read_events()
 
 	for _ in range(TICK_RATE_FACTOR):
-		crackle.value += pop.value * dt
-		snap.value += crackle.value * dt
-		jerk.value += snap.value * dt
-		acceleration.value += jerk.value * dt
-		velocity.value += acceleration.value * dt
-		x += velocity.value * dt
+		crackle.value += pop.value * pop.multiplier * dt
+		snap.value += crackle.value * crackle.multiplier * dt
+		jerk.value += snap.value * snap.multiplier * dt
+		acceleration.value += jerk.value * jerk.multiplier * dt
+		velocity.value += acceleration.value * acceleration.multiplier * dt
+		x += velocity.value * velocity.multiplier * dt
 
 	for child in upgrades_group.children:
 		if not isinstance(child, gui.Button):
 			continue
 
-		if child.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]:
-			child.color = color.TEXTBOX_LIGHT
-
-		else:
-			child.color = color.TEXTBOX
-
 	for index, pair in enumerate(param_button_pairs):
 		param, button = pair
-		if (button.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]) or game.key[str(index+1)]:
+		key_id = str(index + 1)
+
+		if (button.check_point_intersect(game.mouse["pos"]) and game.mouse["1"]):
 			button.color = color.TEXTBOX_LIGHT
-			if x >= param.cost:
-				x -= param.cost
-				param.purchase()
+			if not game.mouse_cooldown["1"]:
+				game.mouse_cooldown["1"] = 1
+				if x >= param.cost:
+					x -= param.cost
+					param.purchase()
+
+		if game.key[key_id]:
+			button.color = color.TEXTBOX_LIGHT
+			if not game.key_cooldown[key_id]:
+				game.key_cooldown[key_id] = 1
+				if x >= param.cost:
+					x -= param.cost
+					param.purchase()
+
 		else:
 			button.color = color.TEXTBOX
 
 	text_upgrades11.set_string(f"${x}")
 	
-
-	text_upgrades32.set_string(f"{velocity.value}")
-	text_upgrades42.set_string(f"{acceleration.value}")
-	text_upgrades52.set_string(f"{jerk.value}")
-	text_upgrades62.set_string(f"{snap.value}")
-	text_upgrades72.set_string(f"{crackle.value}")
-	text_upgrades82.set_string(f"{pop.value}")
+	text_upgrades32.set_string(f"{velocity.value * velocity.multiplier}")
+	text_upgrades42.set_string(f"{acceleration.value * acceleration.multiplier}")
+	text_upgrades52.set_string(f"{jerk.value * jerk.multiplier}")
+	text_upgrades62.set_string(f"{snap.value * snap.multiplier}")
+	text_upgrades72.set_string(f"{crackle.value * crackle.multiplier}")
+	text_upgrades82.set_string(f"{pop.value * pop.multiplier}")
 
 	text_upgrades33.set_string(f"{velocity.cost}")
 	text_upgrades43.set_string(f"{acceleration.cost}")
