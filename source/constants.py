@@ -46,8 +46,13 @@ class Font:
 		self.ANTI_ALIASING = anti_aliasing
 
 	def initialize_all(self) -> None:
+		self.CENTURY60 = pygame.font.SysFont("century", 60)
+		self.CENTURY50 = pygame.font.SysFont("century", 50)
 		self.CENTURY40 = pygame.font.SysFont("century", 40)
+		self.CENTURY30 = pygame.font.SysFont("century", 30)
+		self.CENTURY25 = pygame.font.SysFont("century", 25)
 		self.CENTURY20 = pygame.font.SysFont("century", 20)
+		self.CENTURY10 = pygame.font.SysFont("century", 10)
 
 		self.SYMBOL40 = pygame.font.SysFont("symbol", 40)
 		self.SYMBOL20 = pygame.font.SysFont("symbol", 20)
