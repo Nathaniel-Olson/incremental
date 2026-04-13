@@ -3,12 +3,14 @@ import sys
 
 class Game:
 	def __init__(self, 
-				 screen_size = (640, 480),
-				 display_size = (640, 480)) -> None:
+				 screen_size = (1920, 1080),
+				 display_size = (1920, 1080)) -> None:
 
 		pygame.init()
-
-		self.screen = pygame.display.set_mode(screen_size)
+		self.screen_size = screen_size
+		self.display_size = display_size
+		self.scale_factor = screen_size[0] / display_size[0]
+		self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 		self.display = pygame.Surface(display_size)
 		self.clock = pygame.time.Clock()
 
@@ -37,28 +39,16 @@ class Game:
 		}
 
 		self.mouse = {
-		"1": 0,
-		"2": 0,
-		"3": 0,
-		"4": 0,
-		"5": 0,
+		"1": 0, "2": 0, "3": 0, "4": 0, "5": 0,
 		"pos": (0,0)
 		}
 
 		self.mouse_cooldown = {
-		"1": 0,
-		"2": 0,
-		"3": 0,
-		"4": 0,
-		"5": 0
+		"1": 0, "2": 0, "3": 0, "4": 0, "5": 0
 		}
 
 		self.mouse_map = {
-		1 : "1",
-		2 : "2",
-		3 : "3",
-		4 : "4",
-		5 : "5"
+		1: "1", 2: "2", 3: "3", 4: "4", 5: "5"
 		}
 
 	def read_events(self):
@@ -83,7 +73,9 @@ class Game:
 			if event.type == pygame.MOUSEBUTTONUP:
 				if event.button in self.mouse_map:
 					self.mouse[self.mouse_map[event.button]] = 0
-					self.mouse_cooldown[self.mouse_map[event.button]]
+					self.mouse_cooldown[self.mouse_map[event.button]] = 0
 
 			if event.type == pygame.MOUSEMOTION:
-				self.mouse["pos"] = pygame.mouse.get_pos()
+				raw_mouse_pos = pygame.mouse.get_pos()
+				scaled_mouse_pos = (raw_mouse_pos[0] / self.scale_factor, raw_mouse_pos[1] / self.scale_factor)
+				self.mouse["pos"] = scaled_mouse_pos
