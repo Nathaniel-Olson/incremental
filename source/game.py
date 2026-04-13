@@ -20,6 +20,14 @@ class Game:
 		"space": 0
 		}
 
+		self.key_cooldown = {
+		"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "0": 0,
+		"q": 0, "w": 0, "e": 0, "r": 0, "t": 0, "y": 0, "u": 0, "i": 0, "o": 0, "p": 0,
+		"a": 0, "s": 0, "d": 0, "f": 0, "g": 0, "h": 0, "j": 0, "k": 0, "l": 0,
+		"z": 0, "x": 0, "c": 0, "v": 0, "b": 0, "n": 0, "m": 0,
+		"space": 0
+		}
+
 		self.key_map = {
 			pygame.K_1: "1", pygame.K_2: "2", pygame.K_3: "3", pygame.K_4: "4", pygame.K_5: "5", pygame.K_6: "6", pygame.K_7: "7", pygame.K_8: "8", pygame.K_9: "9", pygame.K_0: "0",
 			pygame.K_q: "q", pygame.K_w: "w", pygame.K_e: "e", pygame.K_r: "r", pygame.K_t: "t", pygame.K_y: "y", pygame.K_u: "u", pygame.K_i: "i", pygame.K_o: "o", pygame.K_p: "p",
@@ -35,6 +43,14 @@ class Game:
 		"4": 0,
 		"5": 0,
 		"pos": (0,0)
+		}
+
+		self.mouse_cooldown = {
+		"1": 0,
+		"2": 0,
+		"3": 0,
+		"4": 0,
+		"5": 0
 		}
 
 		self.mouse_map = {
@@ -58,6 +74,7 @@ class Game:
 			if event.type == pygame.KEYUP:
 				if event.key in self.key_map:
 					self.key[self.key_map[event.key]] = 0
+					self.key_cooldown[self.key_map[event.key]] = 0
 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if event.button in self.mouse_map:
@@ -66,6 +83,7 @@ class Game:
 			if event.type == pygame.MOUSEBUTTONUP:
 				if event.button in self.mouse_map:
 					self.mouse[self.mouse_map[event.button]] = 0
+					self.mouse_cooldown[self.mouse_map[event.button]]
 
 			if event.type == pygame.MOUSEMOTION:
 				self.mouse["pos"] = pygame.mouse.get_pos()
