@@ -7,8 +7,9 @@ class LongInt:
 		self._rebase()
 
 	def __str__(self) -> str:
-		if self.mantissa <= 3:
+		if -2 <= self.mantissa <= 3:
 			return f"{self.base * 10 ** self.mantissa:0.2f}"
+
 		return f"{self.base:0.3f}e{self.mantissa}" 
 
 	def _rebase(self) -> None:
