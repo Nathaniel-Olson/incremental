@@ -1,5 +1,5 @@
 # Hello!
-## welcome to my incremental game project!
+## welcome to my pygame incremental game project!
 
 For the most part, this project is simply messing around with incremental games, and a light exploration into creating gui elements from scratch.
 In the future, i plan to try and learn Rust, so this will serve as a sort of stepping stone for me to recreate, as well as going from oop/inheritance-based towards compositional instead.
@@ -18,9 +18,9 @@ In the future, i plan to try and learn Rust, so this will serve as a sort of ste
 > responsible for all of the user i/o in the game, through the `Game` class.
 
 ### gui.py
-> stores the classes responsible for gui: (strictly hierarchical, `Group` -> `TextBox` -> `Text`)
-	- `Group`
-	- `TextBox`
+> stores the classes responsible for gui: (strictly hierarchical, `Group` -> `TextBox` -> `Text`)  
+	- `Group`  
+	- `TextBox`  
 	- `Text`
 
 ### main.py (deprecated)
